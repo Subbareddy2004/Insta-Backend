@@ -1,9 +1,9 @@
 {
     "version": 2,
     "builds": [
-      { "src": "api/**/*.js", "use": "@vercel/node" }
+      { "src": "./index.js", "use": "@vercel/node" }
     ],
     "routes": [
-      { "src": "/api/(.*)", "methods": ["OPTIONS", "POST"], "headers": { "Access-Control-Allow-Origin": "http://localhost:5173", "Access-Control-Allow-Headers": "Content-Type", "Access-Control-Allow-Methods": "OPTIONS, POST" } }
+      { "src": "/(.*)", "dest": "/index.js" }
     ]
   }

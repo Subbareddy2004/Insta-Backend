@@ -1,4 +1,6 @@
 const { Pool } = require('pg');
+const bcrypt = require('bcrypt');
+const cors = require('cors');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -7,7 +9,16 @@ const pool = new Pool({
   }
 });
 
-module.exports = async (req, res) => {
+// CORS options
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGIN || 'http://localhost:5173',
+  methods: ['POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+};
+
+// Wrap the handler with cors
+const handler = async (req, res) => {
   if (req.method === 'POST') {
     const { username, password } = req.body;
     
@@ -29,3 +40,5 @@ module.exports = async (req, res) => {
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 };
+
+module.exports = cors(corsOptions)(handler);

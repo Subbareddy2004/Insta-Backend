@@ -4,15 +4,19 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "set NODE_ENV=development&& node index.js",
+    "vercel-build": "echo 'Build step completed'",
+    "build": "echo 'No build step required'"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^4.17.1",
     "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
     "pg": "^8.12.0"
   }
 }

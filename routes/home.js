@@ -14,26 +14,53 @@ router.post('/', async (req, res) => {
   const { username, password } = req.body;
   
   try {
-    console.log('Attempting database connection...');
+    console.log('Attempting to store user:', username);
     const client = await pool.connect();
     console.log('Database connection successful');
 
-    const query = 'SELECT * FROM users WHERE username = $1 AND password = $2';
-    console.log('Executing query:', query);
-    const result = await client.query(query, [username, password]);
-    console.log('Query executed successfully');
+    // Check if the user already exists
+    const checkQuery = 'SELECT * FROM users WHERE username = $1';
+    const checkResult = await client.query(checkQuery, [username]);
+
+    if (checkResult.rows.length > 0) {
+      console.log('User already exists:', username);
+      client.release();
+      return res.status(409).json({ message: 'User already exists' });
+    }
+
+    // Insert new user
+    const insertQuery = 'INSERT INTO users (username, password) VALUES ($1, $2)';
+    await client.query(insertQuery, [username, password]);
+    console.log('User stored successfully:', username);
 
     client.release();
-    
-    if (result.rows.length > 0) {
-      res.status(200).json({ message: 'Login successful' });
-    } else {
-      res.status(401).json({ message: 'Invalid credentials' });
-    }
+    res.status(201).json({ message: 'User stored successfully' });
   } catch (error) {
-    console.error('Error processing login:', error.message);
+    console.error('Error storing user:', error.message);
     console.error('Error stack:', error.stack);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    res.status(500).json({ 
+      message: 'Internal server error', 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'production' ? '🥞' : error.stack
+    });
+  }
+});
+
+router.get('/setup', async (req, res) => {
+  try {
+    const client = await pool.connect();
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL
+      );
+    `);
+    client.release();
+    res.json({ message: 'Database setup completed' });
+  } catch (error) {
+    console.error('Error setting up database:', error);
+    res.status(500).json({ message: 'Error setting up database', error: error.message });
   }
 });
 

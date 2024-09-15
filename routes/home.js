@@ -14,7 +14,7 @@ router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   
   try {
-    console.log('Attempting to store user:', username);
+    console.log('Login attempt for:', username);
     const client = await pool.connect();
     console.log('Database connection successful');
 

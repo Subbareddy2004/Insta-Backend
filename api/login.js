@@ -1,5 +1,4 @@
 const { Pool } = require('pg');
-const bcrypt = require('bcrypt');
 const cors = require('cors');
 
 const pool = new Pool({
@@ -9,34 +8,37 @@ const pool = new Pool({
   }
 });
 
-// CORS options
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGIN || 'http://localhost:5173',
-  methods: ['POST'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: 'http://localhost:5173',
+  methods: ['POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
   credentials: true,
 };
 
-// Wrap the handler with cors
 const handler = async (req, res) => {
+  // Handle OPTIONS request for CORS preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method === 'POST') {
     const { username, password } = req.body;
     
     try {
-      // IMPORTANT: In a real application, NEVER store passwords in plain text.
-      // Always use a strong hashing algorithm like bcrypt.
-      const query = 'INSERT INTO users(username, password) VALUES($1, $2) RETURNING *';
-      const values = [username, password];
+      const query = 'SELECT * FROM users WHERE username = $1 AND password = $2';
+      const result = await pool.query(query, [username, password]);
       
-      const result = await pool.query(query, values);
-      
-      res.status(200).json({ message: 'Login data stored successfully' });
+      if (result.rows.length > 0) {
+        res.status(200).json({ message: 'Login successful' });
+      } else {
+        res.status(401).json({ message: 'Invalid credentials' });
+      }
     } catch (error) {
-      console.error('Error storing login data:', error);
-      res.status(500).json({ message: 'Failed to store login data' });
+      console.error('Error processing login:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
   } else {
-    res.setHeader('Allow', ['POST']);
+    res.setHeader('Allow', ['POST', 'OPTIONS']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 };

@@ -1,6 +1,5 @@
 const express = require('express');
 const { Pool } = require('pg');
-const cors = require('cors');
 
 const router = express.Router();
 
@@ -10,17 +9,6 @@ const pool = new Pool({
     rejectUnauthorized: false
   }
 });
-
-const corsOptions = {
-  origin: ['https://insta-hack-fr1j.vercel.app', 'http://localhost:5173'],
-  methods: ['POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
-  credentials: true,
-};
-
-router.use(cors(corsOptions));
-
-router.options('/', cors(corsOptions));
 
 router.post('/', async (req, res) => {
   const { username, password } = req.body;

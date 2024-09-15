@@ -9,7 +9,7 @@ app.use(express.json());
 
 // CORS configuration
 const corsOptions = {
-  origin: 'http://localhost:5173', // or your frontend URL
+  origin: ['https://insta-hack-fr1j.vercel.app', 'http://localhost:5173'],
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type'],
   credentials: true,
@@ -20,7 +20,7 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // Routes
-app.use("/home", home);
+app.use("/api/login", home);  // Changed from "/home" to "/api/login"
 
 // For Vercel, we need to export the app
 module.exports = app;

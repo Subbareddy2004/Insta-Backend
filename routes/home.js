@@ -10,7 +10,7 @@ const pool = new Pool({
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   
   try {
@@ -36,8 +36,7 @@ router.post('/', async (req, res) => {
     client.release();
     res.status(201).json({ message: 'User stored successfully' });
   } catch (error) {
-    console.error('Error storing user:', error.message);
-    console.error('Error stack:', error.stack);
+    console.error('Error processing login:', error);
     res.status(500).json({ 
       message: 'Internal server error', 
       error: error.message,
